@@ -2,7 +2,7 @@
 
 namespace projFitConnect.Controllers
 {
-    public class AdminController : Controller
+    public class AdminController : adminRouteController
     {
         public IActionResult Index()
         {
@@ -21,6 +21,18 @@ namespace projFitConnect.Controllers
             return View();
         }
         public IActionResult CoachAuthority()
+        {
+            return View();
+        }
+        public IActionResult CoachVerify()
+        {
+            return View();
+        }
+        public IActionResult CourseList()
+        {
+            return View();
+        }
+        public IActionResult CourseApproval()
         {
             return View();
         }
@@ -43,11 +55,11 @@ namespace projFitConnect.Controllers
             return View();
         }
 
-        public IActionResult GymCreate()
-        {
-            return View();
-        }
-        public IActionResult ReviewList()
+        //public IActionResult GymCreate()
+        //{
+        //    return View();
+        //}
+        public IActionResult GymReviewList()
         {
             return View();
         }
@@ -56,6 +68,22 @@ namespace projFitConnect.Controllers
             return View();
         }
         public IActionResult FieldCreate()
+        {
+            return View();
+        }
+        public IActionResult FieldReview()
+        {
+            return View();
+        }
+        public IActionResult FieldReviewList()
+        {
+            return View();
+        }
+        public IActionResult GymUpdate()
+        {
+            return View();
+        }
+        public IActionResult FieldUpdate()
         {
             return View();
         }

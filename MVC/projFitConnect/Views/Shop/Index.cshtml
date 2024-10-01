@@ -32,6 +32,24 @@
             color: #342081;
         }
 
+        #autodiv {
+            position: absolute;
+            width:85%;
+            margin-left:15px;
+            top: 100%; /* Positions it directly below the input field */
+            left: 0;
+            right: 0;
+            z-index: 1000; /* Ensures it appears above other elements */
+            background-color: #FDFFFF;
+            border: 1px solid #ccc; 
+            border-top: none; 
+        }
+
+            #autodiv button {
+                width: 100%;
+                text-align: left;
+            }
+
         .pagination-container {
             display: flex;
             justify-content: center;
@@ -98,37 +116,84 @@
                 border-width: 3px;
             }
 
+        .btn-track {
+            border-radius: 50%; 
+            padding: 10px; 
+            border: 2px solid transparent; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            background-color: white;
+        }
+
             .btn-track:hover {
                 border-color: #dc3545;
             }
 
+        .btn-cart {
+            border-radius: 50%;
+            padding: 10px;
+            border: 2px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+        }
+
             .btn-cart:hover {
-                background-color:paleturquoise;
                 border-color: deepskyblue;
             }
 
-        .seemore {
+        .btn-seemore {
             color: #fff;
             background-color: #ffc107;
             border-color: #ffc107;
+            text-align:center;
             text-decoration: none;
             font-weight: 600;
         }
 
-            .seemore:hover {
+            .btn-seemore:hover {
                 color: #fff;
                 background-color: #0080FF;
                 border-color: darkcyan;
+                text-decoration: none;
             }
+
+        .carousel-control-prev,
+        .carousel-control-next {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .carousel-control-prev {
+            left: -35px; /* Adjust the position from the left side */
+        }
+
+        .carousel-control-next {
+            right: -35px; /* Adjust the position from the right side */
+        }
+
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+            background-color: #D0D0D0;
+            border-radius: 50%;
+            padding: 10px; /* Adjust the size as needed */
+        }
     </style>
 }
-<a href="https://localhost:7168/shop/merchandise/17" style="text-decoration:none;">
-    <h1 style="margin-top:100px; text-align:center; font-size:4.5em;color:aliceblue;">吠!特麽坑吶~商城</h1>
-</a>
+
 
 <div id="content">
     <aside class="aside">
-        <section class="section" style="margin-top:100px">
+        <section class="section" style="margin-top:90px">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom:8px;">
                 <h2 class="subtital">商品類別</h2>
                 <button class="btn btn-outline-success" type="button" id="checkAll" value="0">
@@ -194,17 +259,10 @@
                     <button class="btn btn-outline-secondary" style="margin-left:12px;" id="orderbtn">正序</button>
                 </div>
             </div>
-            <div class="col-4" style="text-align:right;">
+            <div class="col-4" style="text-align:right; position:relative;">
                 <input type="search" placeholder="輸入搜尋商品..." class="form-control" id="inputSearch" />
-                <div class="list-group" id="autodiv">
-                    <button type="button" class="list-group-item list-group-item-action" style="display:none;" onclick="" value="0">
-                        ALL
-                    </button>
-                </div>
-                <div class="list-group" id="autodiv">
-                    <button type="button" class="list-group-item list-group-item-action" style="display:none;" onclick="autobtnClicked(event)" value="Humm">
-                        蛋白棒棒!!
-                    </button>
+                <div class="list-group" id="autodiv" style="position:absolute; top:100%; left:0; right:0; z-index:1000;">
+                    <!-- Autocomplete suggestions will be appended here -->
                 </div>
             </div>
             <div class="col-4" style="text-align:right;">
@@ -274,9 +332,71 @@
     &emsp;
 </div>
 
+<!-- Modal -->
+<div class="modal" id="producttrackModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="border-radius:10px; overflow:hidden;">
+        <div class="modal-content" style="height:300px;width:400px;position:relative;border-radius:10px;border-color:#CECEFF;">
+            <div class="modal-body" style="background-color:#ECFFFF; padding:0; position:relative; border-radius:10px;">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position:absolute; top:10px; right:10px;"></button>
+                <h5 style="position:absolute; top:10%; left:50%; transform:translate(-50%, -50%); color:#003D79; text-shadow: 1px 1px 2px #D9FFFF; font-weight:700;">加入追蹤成功!</h5>
+                <img src="https://cdn.dribbble.com/users/1154535/screenshots/3288650/dribbble-success-2.gif" alt="success" style="height:100%; width:100%; object-fit:cover; border-radius:10px;border-color:#CECEFF;">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="alreadytrackModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="border-radius:10px; overflow:hidden;">
+        <div class="modal-content" style="height:300px;width:400px;position:relative;border-radius:20px;border-color:#CECEFF;">
+            <div class="modal-body" style="background-color:#FFED97; padding:0; position:relative; border-radius:10px;">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position:absolute; top:10px; right:10px;"></button>
+                <h5 style="position:absolute; top:10%; left:50%; transform:translate(-50%, -50%); color:#272727; text-shadow: 1px 1px 2px #FFFFDF; font-weight:700;">已追蹤商品~</h5>
+                <img src="https://cdn.dribbble.com/users/5669337/screenshots/13958426/light_bulb.gif" alt="Already" style="height:100%; width:100%; object-fit:cover; border-radius:20px;border-color:#CECEFF;">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="shoppingcartModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="border-radius:10px; overflow:hidden;">
+        <div class="modal-content" style="height:300px;width:400px;position:relative;border-radius:10px;border-color:#DFFFDF;">
+            <div class="modal-body" style="background-color:#FBFFFD; padding:0; position:relative; border-radius:10px;">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position:absolute; top:10px; right:10px;"></button>
+                <h5 style="position:absolute; top:10%; left:50%; transform:translate(-50%, -50%); color:#01814A; text-shadow: 1px 1px 2px #DEFFAC; font-weight:700;">加入購物車!</h5>
+                <img src="https://cdn.dribbble.com/users/39201/screenshots/3694057/nutmeg.gif" alt="success" style="height:100%; width:100%; object-fit:cover; border-radius:10px;border-color:#DFFFDF;">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="failedModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="border-radius:10px; overflow:hidden;">
+        <div class="modal-content" style="height:300px;width:400px;position:relative;border-radius:10px;border-color:#FFECEC;">
+            <div class="modal-body" style="background-color:#FBFFFD; padding:0; position:relative; border-radius:10px;">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position:absolute; top:10px; right:10px;"></button>
+                <h5 style="position:absolute; top:10%; left:50%; transform:translate(-50%, -50%); color:#600000; text-shadow: 1px 1px 2px #FFD9EC; font-weight:700;">加入失敗</h5>
+                <img src="https://i.giphy.com/pjFF8YLW996aXqFHAu.webp" alt="Failed" style="height:100%; width:100%; object-fit:cover; border-radius:10px;border-color:#FFECEC;">
+            </div>
+        </div>
+    </div>
+</div>
 
+<div class="modal" id="unloginlModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered m-auto">
+        <div class="modal-content" style="position:relative;border-radius:15px;border-color:#FFECEC;">
+            <div class="modal-body" style="background-color:#ECFFFF; padding:0; position:relative; border-radius:15px;">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position:absolute; top:10px; right:10px;"></button>
+                <p style="position:absolute; top:10%; left:50%; transform:translate(-50%, -50%); color:#003D79; text-shadow: 1px 1px 2px #D7FFEE; font-weight:900;font-size:2.5em;">尚未登入</p>
+                <img src="https://cdn.pixabay.com/animation/2022/12/01/17/03/17-03-11-60_512.gif" alt="Failed" style="height:100%; width:100%; object-fit:cover; border-radius:15px;border-color:#ECFFFF;">
+                <a href="https://localhost:7168/Home/Login" class="btn btn-primary" id="headtologin" style="position:absolute; top:90%; left:50%; transform:translate(-50%, -50%);">前往登入--></a>
+            </div>
+        </div>
+    </div>
+</div>
+@{
+    var loginMemberID = ViewBag.ID != null ? ViewBag.ID : 0;
+}
 @section Scripts {
     <script>
+        const LoginMemberID = "@loginMemberID";
+        console.log('LoginMemberID', LoginMemberID);
         let MaxPage = 0;
         const divMain = document.getElementById('divmain');
         const ulPaging = document.getElementById('ulpaging');
@@ -288,6 +408,7 @@
         const inpSearch = document.querySelector('#inputSearch');
         const pagesize = document.querySelectorAll('[name="inlineRadioOptions"]');
         const recommend = document.querySelector('#divrecommend');
+        const unloginlModal = new bootstrap.Modal(document.getElementById('unloginlModal'));
         const searchData = {
             "categoryId": 0,
             "keyword": "",
@@ -296,6 +417,8 @@
             "sortBy": "",
             "sortType": "asc"
         };
+        document.querySelector('#bannerTitle').style.display = 'block';
+        document.querySelector('#bannerTitle').textContent = '商城';
         //aside---------------------------------------------------------------------------------------------------------
         checkboxAll.addEventListener('click', function () {
             for (var item of everyCheckBox) {
@@ -331,10 +454,10 @@
             const goods = data.productsResult.map(good => {
                 //data:image/jpeg;base64,${good.productImage}
                 //merchandise/${good.productId}
-                return (`<a href="merchandise/${good.productId}" style="text-decoration:none;">
+                return (`<a href="https://localhost:7168/shop/merchandise/${good.productId}" style="text-decoration:none;">
                            <div class="card mb-3 hover" style="max-width: 540px;">
                             <div class="row g-0">
-                             <div class="col-md-4" style="text-align:center; padding-top:10px">
+                             <div class="col-md-4" style="text-align:center; padding-top:10px;">
                                <img src="data:image/jpeg;base64,${good.productImage}" class="img-fluid rounded-start" alt="Top3">
                                  <h6 style="font-size:0.5em;color:white;text-shadow:-1px -1px 0 crimson, 1px -1px 0 red,-1px  1px 0 red,1px  1px 0 crimson;">已售出 ${good.productSold}</h6>
                              </div>
@@ -391,6 +514,52 @@
                 CategoryloadProducts();
             }
         })
+        //autocomplete
+        inpSearch.addEventListener('input', async (event) => {
+            if (inpSearch.value === "") { document.getElementById('autodiv').innerHTML = ""; return; }
+            if (event.target.matches('#inputSearch, #inputSearch *')) {
+                let url = 'https://localhost:7199/api/Products/search';
+                let response = await fetch(url, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        "categoryId": 0,
+                        "keyword": "",
+                        "page": 1,
+                        "pageSize": 999,
+                        "sortBy": "",
+                        "sortType": "asc"
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                let data = await response.json();
+                var s = "",count=0;
+                for (let i of data.productsResult) {
+                    if (i.productName.includes(inpSearch.value)) {
+                        count++;
+                        //console.log(i.productName);
+                        if (count <= 3) { 
+                             s += `<button type="button" 
+                                         class="list-group-item list-group-item-action"
+                                         onclick="autobtnClicked(event)"
+                                         value="${i.productName}">${i.productName}</button>`
+                        }
+                    }
+                };
+                document.getElementById('autodiv').innerHTML = s;
+            }
+        });
+        function autobtnClicked(event) {
+            //console.log(event.target.value);
+            inpSearch.value = event.target.value;
+            //console.log(inpSearch.value);
+            searchData.keyword = event.target.value;
+            searchData.categoryId = 0;
+            searchData.page = 1;
+            document.getElementById('autodiv').innerHTML = "";
+            CategoryloadProducts();
+        }
         //顯示筆數
         for (var radio of pagesize) {
             //console.log(radio.value);
@@ -400,10 +569,88 @@
                 CategoryloadProducts();
             })
         }
-        //追蹤
-        function track(event) {
-            const trackedImg = '<img src="https://cdn3.iconfinder.com/data/icons/emoji-1-4/64/_love_heart_smiley-32.png" />';
-            event.innerHTML = trackedImg;
+        //加入追蹤
+        function showProductTrackModal() {
+            const modal = new bootstrap.Modal(document.getElementById('producttrackModal'));
+            modal.show();
+            setTimeout(() => {
+                modal.hide();
+            }, 2468);
+        }
+        function showAlreadyTrackModal() {
+            const modal = new bootstrap.Modal(document.getElementById('alreadytrackModal'));
+            modal.show();
+            setTimeout(() => {
+                modal.hide();
+            }, 999);
+        }
+        async function track(event, productId) {
+            if (LoginMemberID === '0') {
+                unloginlModal.show();
+                return;
+            }
+            const trackingImg = '<img src="https://cdn3.iconfinder.com/data/icons/emoji-1-4/64/_love_heart_smiley-32.png" />';
+            const trackedImg = '<img src="https://cdn4.iconfinder.com/data/icons/twitter-29/512/166_Heart_Love_Like_Twitter-32.png" />';
+
+            let url = 'https://localhost:7199/api/ProductTrack?memberId=' + LoginMemberID + '&productId=' + productId;
+            let response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            let data = await response.text();
+
+            if (response.ok) {
+                if (data === 'Tracked') {
+                    event.innerHTML = trackingImg;
+                    showProductTrackModal();
+                } else {
+                    event.innerHTML = trackedImg;
+                    showAlreadyTrackModal();
+                }
+            }
+        }
+        //加入購物車
+        function showShoppingcartModal() {
+            const modal = new bootstrap.Modal(document.getElementById('shoppingcartModal'));
+            modal.show();
+            setTimeout(() => {
+                modal.hide();
+            }, 2468);
+        }
+        function showFailedModal() {
+            const modal = new bootstrap.Modal(document.getElementById('failedModal'));
+            modal.show();
+            setTimeout(() => {
+                modal.hide();
+            }, 1357);
+        }
+        async function addtocart(event, productId) {
+            if (LoginMemberID === '0') {
+                unloginlModal.show();
+                return;
+            }
+            console.log(productId);
+
+            const CartAddedImg = '<img src="https://cdn3.iconfinder.com/data/icons/ui-61/32/cart6-32.png" />';
+            event.innerHTML = CartAddedImg;
+            let url = 'https://localhost:7199/api/Shoppingcarts?memberId=' + LoginMemberID + '&productId=' + productId + '&quantity=' + 1;
+            let response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            let data = await response.text();
+
+            if (response.ok) {
+                if (data === 'AddToCart') {
+                    showShoppingcartModal();
+                } else {
+                    showFailedModal();
+                }
+            }
         }
         //換頁按鈕
         const CategorypagingHandler = (event,page) => {
@@ -438,7 +685,7 @@
             //顯示資料
             const goods = data.productsResult.map(good => {
                 //data:image/jpeg;base64,${good.productImage}
-                return (` <a href="merchandise/${good.productId}" style="text-decoration:none;">
+                return (` <a href="https://localhost:7168/shop/merchandise/${good.productId}" style="text-decoration:none;">
                             <div class="card recommend m-auto hover" style="min-width:150px;padding-top:8px">
                                   <img class="card-img-top" src="data:image/jpeg;base64,${good.productImage}" alt="recommend" style="width:100%">
                                   <div class="card-body">
@@ -507,22 +754,22 @@
                          <div class="card-body">
                           <h5 class="card-title">${allData[position].productName}</h5>
                          <div style="text-align:right;float:right;">
-                         <button type="button" class="btn btn-track" onclick="track(this)">
-                          <img src="https://cdn0.iconfinder.com/data/icons/typicons-2/24/heart-outline-32.png" />
+                         <button type="button" class="btn btn-track" onclick="track(this,${allData[position].productId})">
+                          <img src="https://cdn0.iconfinder.com/data/icons/typicons-2/24/heart-outline-32.png"  title="加入追蹤"/>
                          </button>
-                         <button type="button" class="btn btn-cart">
-                          <img src="https://cdn4.iconfinder.com/data/icons/basic-ui-2-line/32/shopping-cart-shop-drop-trolly-32.png" />
+                         <button type="button" class="btn btn-cart" onclick="addtocart(this,${allData[position].productId})">
+                          <img src="https://cdn4.iconfinder.com/data/icons/basic-ui-2-line/32/shopping-cart-shop-drop-trolly-32.png" title="加入購物車"/>
                          </button>
                         </div>
                         <label class="tag" data-Id="${allData[position].productCategoryId}">#${allData[position].productCategory}</label>
                         <p class="card-text">$${allData[position].unitPrice}NTD</p>
                        </div>
                        <div class="d-grid gap-2">
-                       <a href="merchandise/${allData[position].productId}" class="btn seemore">商品詳細</a>
+                       <a href="https://localhost:7168/shop/merchandise/${allData[position].productId}" class="btn-seemore">商品詳細</a>
                        </div></div></div>`
             }
             divMain.innerHTML = s;
-
+            //category,Tag
             const categoryTag = document.querySelectorAll('.tag');
             for (var card of categoryTag) {
                 card.addEventListener('click', function () {
@@ -536,6 +783,26 @@
                     CategoryloadProducts();
                 });
             }
+            //Track-hover
+            document.querySelectorAll('.btn-track').forEach(button => {
+                const img = button.querySelector('img');
+                button.addEventListener('mouseover', () => {
+                    img.src = 'https://cdn4.iconfinder.com/data/icons/twitter-29/512/166_Heart_Love_Like_Twitter-32.png';
+                });
+                button.addEventListener('mouseout', () => {
+                    img.src = 'https://cdn0.iconfinder.com/data/icons/typicons-2/24/heart-outline-32.png';
+                });
+            });
+            //Cart-hover
+            document.querySelectorAll('.btn-cart').forEach(button => {
+                const img = button.querySelector('img');
+                button.addEventListener('mouseover', () => {
+                    img.src = 'https://cdn3.iconfinder.com/data/icons/ui-61/32/cart6-32.png';
+                });
+                button.addEventListener('mouseout', () => {
+                    img.src = 'https://cdn4.iconfinder.com/data/icons/basic-ui-2-line/32/shopping-cart-shop-drop-trolly-32.png';
+                });
+            });
             //顯示分頁按鈕
             let liPages = "", pageCount = 0;
             MaxPage = Math.ceil(allCount / searchData.pageSize);

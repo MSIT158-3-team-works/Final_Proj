@@ -8,6 +8,8 @@ using System.Drawing.Text;
 using projRESTfulApiFitConnect.DTO.Gym;
 using System.Linq;
 using System.Dynamic;
+using Humanizer;
+using projRESTfulApiFitConnect.DTO.Product;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -39,7 +41,7 @@ namespace projRESTfulApiFitConnect.Controllers
                 return NotFound();
             }
             var gyms = await _context.GymInfoDetails
-                .Where(x=>x.GymStatus==true)
+                .Where(x => x.GymStatus == true)
                 .ToListAsync();
             foreach (var item in gyms)
             {
@@ -56,39 +58,59 @@ namespace projRESTfulApiFitConnect.Controllers
                     GymId = item.GymId,
                     RegionId = item.RegionId,
                     Region = item.Region,
-                    CityId =item.CityId,
+                    CityId = item.CityId,
                     City = item.City,
-                    GymName=item.GymName,
-                    GymAddress=item.GymAddress,
-                    GymStatus=item.GymStatus,
-                    GymTime=item.GymTime,
-                    GymPhoto =base64Image,
+                    GymName = item.GymName,
+                    GymAddress = item.GymAddress,
+                    GymStatus = item.GymStatus,
+                    GymTime = item.GymTime,
+                    GymPhoto = base64Image,
                     GymPhone = item.GymPhoto,
-                    GymPark=item.GymPark,
-                    GymTraffic=item.GymTraffic,
-                    GymDescribe=item.GymDescribe
+                    GymPark = item.GymPark,
+                    GymTraffic = item.GymTraffic,
+                    GymDescribe = item.GymDescribe
                 };
                 gymDtos.Add(gymDto);
             }
             return Ok(gymDtos);
         }
-        
+
         // GET api/<GymListController>/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TGym>> GetTGym(int id)
         {
+            List<GymListDto> gymDtos = new List<GymListDto>();
             if (_context.TGyms == null)
             {
                 return NotFound();
             }
-            var tGym = await _context.TGyms.FindAsync(id);
+            var gyms = await _context.TGyms
+                .Include(x => x.Region)
+                .ThenInclude(x => x.City)
+                .Where(x => x.GymId == id)
+                .Where(x => x.GymStatus == true)
+                .ToListAsync();
 
-            if (tGym == null)
+            foreach (var item in gyms)
             {
-                return NotFound();
+                GymListDto gymDto = new GymListDto()
+                {
+                    GymId = item.GymId,
+                    RegionId = item.RegionId,
+                    Region = item.Region.Region,
+                    CityId = item.Region.City.CityId,
+                    City = item.Region.City.City,
+                    GymName = item.GymName,
+                    GymAddress = item.GymAddress,
+                    GymStatus = item.GymStatus,
+                    GymTime = item.GymTime,
+                    GymPark = item.GymPark,
+                    GymTraffic = item.GymTraffic,
+                    GymDescribe = item.GymDescribe
+                };
+                gymDtos.Add(gymDto);
             }
-
-            return tGym;
+            return Ok(gymDtos);
         }
 
         //  get all time
@@ -98,12 +120,10 @@ namespace projRESTfulApiFitConnect.Controllers
             return Ok(_context.TtimesDetails);
         }
 
-        // POST api/<GymListController>
+        //POST api/<GymListController>
         [HttpPost]
         public async Task<IActionResult> PostTGym([FromForm] GymDetailDto dto)
         {
-            //chk
-            //bool isSaved = false;
 
             int ownerId, companyId;
 
@@ -151,14 +171,33 @@ namespace projRESTfulApiFitConnect.Controllers
             string GymRegion = dto.GymRegion;
             int regionId = Convert.ToInt32(_context.TregionTables.FirstOrDefault(x => x.Region == GymRegion).RegionId);
             //讀取表單 開始-結束時間
-            string start_time = dto.start_time, end_time = dto.end_time;
-            int time1 = Convert.ToInt32(start_time);
-            int time2 = Convert.ToInt32(end_time);
+            string start_time = dto.start_time;
+            string end_time = dto.end_time;
             //時間ID轉成字串 "00:00-00:00"
-            string text = _context.TtimesDetails.FirstOrDefault(x => x.TimeId == time1).TimeName.ToString(@"hh\:mm") 
-                + " - " + _context.TtimesDetails.FirstOrDefault(x => x.TimeId == time2).TimeName.ToString(@"hh\:mm");
-            //新增場地
-            TGym newGym = new TGym {
+            string text = start_time + "-" + end_time;
+
+            // 處理照片上傳
+            string gymPhotoFileName = null;
+            if (dto.UploadedGymPhoto != null && dto.UploadedGymPhoto.Length > 0)
+            {
+                var uploads = Path.Combine(Directory.GetCurrentDirectory(), "Images", "GymImages");
+                if (!Directory.Exists(uploads))
+                {
+                    Directory.CreateDirectory(uploads);
+                }
+
+                gymPhotoFileName = Path.GetFileName(dto.UploadedGymPhoto.FileName);
+                var filePath = Path.Combine(uploads, gymPhotoFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await dto.UploadedGymPhoto.CopyToAsync(fileStream);
+                }
+            }
+            dto.GymPhoto = gymPhotoFileName;
+            //新增場館
+            TGym newGym = new TGym
+            {
                 CompanyId = companyId,
                 RegionId = regionId,
                 GymName = dto.GymName,
@@ -176,17 +215,50 @@ namespace projRESTfulApiFitConnect.Controllers
             _context.SaveChanges();
             int gymId = newGym.GymId;
             _context.SaveChanges();
-            return Ok("123");
+            return Ok(new { success = "gym create success" });
         }
 
         // PUT api/<GymListController>/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(int id, TGym gym)
+        public async Task<IActionResult> PutGym(int id, [FromBody] GymUpdateDto dto)
         {
-            if (id != gym.GymId)
+            var gym = await _context.TGyms.FindAsync(id);
+
+            if (gym == null)
             {
-                return BadRequest();
+                return NotFound();
             }
+
+            //讀取表單 開始-結束時間
+            string text = dto.start_time + "-" + dto.end_time;
+
+            // 更新場館信息
+            if (!string.IsNullOrEmpty(dto.GymName))
+                gym.GymName = dto.GymName;
+            if (dto.RegionId.HasValue && dto.RegionId != 0)
+                gym.RegionId = dto.RegionId.Value;
+            if (!string.IsNullOrEmpty(dto.GymAddress))
+                gym.GymAddress = dto.GymAddress;
+            if (!string.IsNullOrEmpty(dto.GymPhone))
+                gym.GymPhone = dto.GymPhone;
+            if (!string.IsNullOrEmpty(text))
+                gym.GymTime = text;
+            if (!string.IsNullOrEmpty(dto.GymPark))
+                gym.GymPark = dto.GymPark;
+            if (!string.IsNullOrEmpty(dto.GymTraffic))
+                gym.GymTraffic = dto.GymTraffic;
+            if (!string.IsNullOrEmpty(dto.GymDescribe))
+                gym.GymDescribe = dto.GymDescribe;
+            if (!string.IsNullOrEmpty(dto.GymPhoto) && !string.IsNullOrEmpty(dto.ImageBase64))
+            {
+                byte[] imageBytes = Convert.FromBase64String(dto.ImageBase64);
+                string filepath = Path.Combine(_env.ContentRootPath, "Images", "GymImages", dto.GymPhoto);
+                await System.IO.File.WriteAllBytesAsync(filepath, imageBytes);
+
+                gym.GymPhoto = dto.GymPhoto;
+            }
+            gym.ExpiryDate = new DateOnly(2050, 12, 31);
+            gym.GymStatus = true;
 
             _context.Entry(gym).State = EntityState.Modified;
 
@@ -198,7 +270,7 @@ namespace projRESTfulApiFitConnect.Controllers
             {
                 if (!TGymExists(id))
                 {
-                    return NotFound();
+                    return Ok("not found");
                 }
                 else
                 {
@@ -206,7 +278,7 @@ namespace projRESTfulApiFitConnect.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok("edited");
         }
         private bool TGymExists(int id)
         {

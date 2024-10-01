@@ -1,0 +1,923 @@
+﻿@model projFitConnect.ViewModels.C_user;
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+<style>
+    .pgmargin {
+        padding: 0 6%;
+    }
+
+    .active {
+        display: block;
+    }
+
+    .disable {
+        display: none;
+    }
+
+    .txtcolor {
+        color: black
+    }
+
+    .profile-pic {
+        height: 390px;
+        border-radius: 20%;
+    }
+
+    .profile-pic-label {
+        display: block;
+        text-align: center;
+        margin-top: 10px;
+        cursor: pointer;
+        color: #0072E3;
+        font-weight: bold;
+    }
+</style>
+
+<div id="page">
+    <div style="padding-top:100px"></div>
+    <div id="upside">
+
+        <div id="info_div" class="pgmargin m-2">
+            <div class="d-flex flex-column float-start m-lg-2 mr-5">
+                <img src="Athena.jpeg" class="rounded-circle" alt="..." height="140px" id="pic1">
+                <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#membereditModal" id="btn">修改會員資料</button>
+            </div>
+            <div>
+                <p id="txt1">FitConnect會員</p>
+                <div class="p-3" id="txt2"></div>
+                <div class="d-flex flex-row bd-highlight mb-0  pb-0">
+                    <div class="p-2 flex-fill bd-highlight pb-0">
+                        <div class="d-flex flex-row bd-highlight mb-0">
+                            <div class="m-1 mb-0">
+                                <img src="~/images/member.png" class="rounded-circle" alt="..." width="40px">
+                            </div>
+                            <div class="flex-fill bd-highlight mb-0">
+                                <p>加入時間</p>
+                                <p id="span_1"> - - </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-2 flex-fill bd-highlight pb-0">
+                        <div class="d-flex flex-row bd-highlight mb-0">
+                            <div class="m-1 mb-0">
+                                <img src="~/images/mail.png" class="rounded-circle" alt="..." width="40px">
+                            </div>
+                            <div class="flex-fill bd-highlight mb-0">
+                                <p>累計課程</p>
+                                <p id="span_2"> - - </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-2 flex-fill bd-highlight pb-0">
+                        <div class="d-flex flex-row bd-highlight mb-0">
+                            <div class="m-1 mb-0">
+                                <img src="~/images/comment.png" class="rounded-circle" alt="..." width="40px">
+                            </div>
+                            <div class="flex-fill bd-highlight mb-0">
+                                <p>筆記總數</p>
+                                <p id="span_3"> - - </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-2 flex-fill bd-highlight pb-0">
+                        <div class="d-flex flex-row bd-highlight mb-0">
+                            <div class="m-1 mb-0">
+                                <img src="~/images/list.png" class="rounded-circle" alt="..." width="40px">
+                            </div>
+                            <div class="flex-fill bd-highlight mb-0">
+                                <p>發布討論</p>
+                                <p id="span_4"> - - </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr class="m-1" />
+        </div>
+
+        <div id="info_nav" class="pgmargin">
+            <nav class="navbar-light">
+                <ul class="list-group flex-row m-2" id="nav">
+                    <li class="list-group-item d-flex justify-content-between align-items-center border-0 flex-fill btn btn-outline-secondary">
+                        <span>我的課程</span>
+                        <span class="badge text-bg-primary p-2 rounded-pill txtcolor" id="sp1"></span>
+                        <span hidden>1</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center border-0 flex-fill btn btn-outline-secondary">
+                        <span>我的訂單</span>
+                        <span class="badge text-bg-primary p-2 rounded-pill txtcolor" id="sp2"></span>
+                        <span hidden>2</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center border-0 flex-fill btn btn-outline-secondary">
+                        <span>我的蒐藏</span>
+                        <span class="badge text-bg-primary p-2 rounded-pill txtcolor" id="sp3"></span>
+                        <span hidden>3</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center border-0 flex-fill btn btn-outline-secondary">
+                        <span>追蹤列表</span>
+                        <span class="badge text-bg-primary p-2 rounded-pill txtcolor" id="sp4"></span>
+                        <span hidden>4</span>
+                    </li>
+                </ul>
+            </nav>
+
+        </div>
+    </div>
+
+    <div id="downside" style="background-color:snow;height:600px;border-radius:10px;padding-top:30px;padding-bottom:10px;">
+
+        <div id="div_load">
+            <div class="pgmargin">
+                <div style="margin:50px;padding:100px;text-align:center;padding-bottom:0;margin-bottom:0;">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="我的課程" class="disable">
+            <div class="pgmargin">
+                <h2 id="list-item-1">課程</h2>
+                <table class="table table-striped table-hover m-2 text-center" id="table_1">
+                    <thead>
+
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">課程</th>
+                            <th scope="col">教練</th>
+                            <th scope="col">地點</th>
+                            <th scope="col">時間</th>
+                            <th scope="col">費用</th>
+                            <th scope="col">狀態</th>
+                            <th scope="col">評分/評論</th>
+                            <th scope="col">檢視</th>
+                            <th scope="col">取消</th>
+                        </tr>
+
+                    </thead>
+                    <tbody id="tb1">
+                    </tbody>
+                </table>
+
+                <nav aria-label="Page navigation example pagination ">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Previous" disable>
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item"><a class="page-link">1</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <div id="我的訂單" class="disable">
+            <div class="pgmargin">
+                <h2 id="list-item-2">訂單</h2>
+                <table class="table table-striped table-hover m-2 text-center">
+                    <thead>
+
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">名稱</th>
+                            <th scope="col">類別</th>
+                            <th scope="col">數量</th>
+                            <th scope="col">費用</th>
+                            <th scope="col">時間</th>
+                            <th scope="col">狀態</th>
+                            <th scope="col">檢視</th>
+                            <th scope="col">取消</th>
+                        </tr>
+
+                    </thead>
+                    <tbody id="tb2">
+                    </tbody>
+                </table>
+
+                <nav aria-label="Page navigation example pagination ">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item"><a class="page-link">1</a></li>
+                        <li class="page-item"><a class="page-link">2</a></li>
+                        <li class="page-item"><a class="page-link">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+
+                <button>
+                    前往購物車
+                </button>
+            </div>
+        </div>
+
+        <div id="我的蒐藏" class="disable">
+            <div class="pgmargin">
+                <h2 id="list-item-3">蒐藏</h2>
+                <table class="table table-striped table-hover m-2 text-center">
+                    <thead>
+
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">類別</th>
+                            <th scope="col">名稱</th>
+                            <th scope="col">數量</th>
+                            <th scope="col">時間</th>
+                            <th scope="col">狀態</th>
+                            <th scope="col">檢視</th>
+                            <th scope="col">取消</th>
+                        </tr>
+
+                    </thead>
+                    <tbody id="tb3">
+                    </tbody>
+                </table>
+
+                <nav aria-label="Page navigation example pagination ">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item"><a class="page-link">1</a></li>
+                        <li class="page-item"><a class="page-link">2</a></li>
+                        <li class="page-item"><a class="page-link">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <div id="追蹤列表" class="disable">
+            <div class="pgmargin">
+                <h2 id="list-item-3">追蹤教練</h2>
+                <table class="table table-striped table-hover m-2 text-center">
+                    <thead>
+
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">名稱</th>
+                            <th scope="col">專業</th>
+                            <th scope="col">狀態</th>
+                            <th scope="col">檢視</th>
+                            <th scope="col">取消</th>
+                        </tr>
+
+                    </thead>
+                    <tbody id="tb4">
+                    </tbody>
+                </table>
+
+                <nav aria-label="Page navigation example pagination ">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item"><a class="page-link">1</a></li>
+                        <li class="page-item"><a class="page-link">2</a></li>
+                        <li class="page-item"><a class="page-link">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="membereditModal" tabindex="-1" aria-labelledby="membereditModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 42%; width: 42%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="membereditModalLabel">修改個人資料</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div style="margin:auto;text-align:center;">
+                    <img src="https://cdn2.iconfinder.com/data/icons/ui-basic-outline-2/512/UI_Basic_outline-47-256.png" class="profile-pic" id="imgShow" onclick="triggerFileInput()" />
+                    <label id="lblPicture" style="display:none;">
+                        <input id="imgLoad" type="file" name="photo" class="form-control" style="display:none;" />
+                        更換頭像
+                    </label>
+                </div>
+                <div style="max-width: 80%; width: 80%; margin:auto;">
+                    <div class="mb-3">
+                        <label for="username" class="control-label">用戶名稱:</label>
+                        <input type="text" id="idUserName" name="username" class="form-control" />
+                        <span id="spUserName"></span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md">
+                            <label class="col-form-label">生日:</label>
+                            <input type="text" class="form-control" id="idbirthday" disabled>
+                        </div>
+                        <div class="col-md">
+                            <label class="col-form-label">性別:</label>
+                            <input type="text" class="form-control" id="idgender" disabled>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone" class="control-label">電話:</label>
+                        <input type="tel" id="idPhone" name="phone" class="form-control" />
+                        <span id="spPhone"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label for="Email" class="col-form-label">電子信箱:</label>
+                        <input type="email" id="idEmail" name="Email" class="form-control" />
+                        <span id="spEmail"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label for="Address" class="col-form-label">地址:</label>
+                        <input type="text" id="idAddress" name="Address" class="form-control" />
+                        <span id="spAddress"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-success" id="buttonSubmit">修改</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="successModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="border-radius:10px; overflow:hidden;">
+        <div class="modal-content" style="height:300px;width:400px;position:relative;border-radius:10px;border-color:#CECEFF;">
+            <div class="modal-body" style="background-color:#ECFFFF; padding:0; position:relative; border-radius:10px;">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position:absolute; top:10px; right:10px;"></button>
+                <h5 style="position:absolute; top:10%; left:50%; transform:translate(-50%, -50%); color:#003D79; text-shadow: 1px 1px 2px #D9FFFF; font-weight:700;">修改成功!</h5>
+                <img src="https://cdn.dribbble.com/users/1154535/screenshots/3288650/dribbble-success-2.gif" alt="success" style="height:100%; width:100%; object-fit:cover; border-radius:10px;border-color:#CECEFF;">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="failedModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="border-radius:10px; overflow:hidden;">
+        <div class="modal-content" style="height:300px;width:400px;position:relative;border-radius:10px;border-color:#FFECEC;">
+            <div class="modal-body" style="background-color:#FBFFFD; padding:0; position:relative; border-radius:10px;">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position:absolute; top:10px; right:10px;"></button>
+                <h3 style="position:absolute; top:10%; left:50%; transform:translate(-50%, -50%); color:#600000; text-shadow: 1px 1px 2px #FFD9EC; font-weight:700;">修改失敗</h3>
+                <img src="https://i.giphy.com/pjFF8YLW996aXqFHAu.webp" alt="Failed" style="height:100%; width:100%; object-fit:cover; border-radius:10px;border-color:#FFECEC;">
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 評論 -->
+<div class="modal fade" id="commentModal" tabindex="-1" aria-labelledby="commentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 42%; width: 42%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="commentModalLabel">課程/教練評價</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div style="max-width: 80%; width: 80%; margin:auto;">
+                    <div class="mb-3">
+                        <label for="classname" class="col-form-label"><h3>課程:</h3></label>
+                        <input type="text" class="form-control" id="classname" disabled>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md">
+                            <label for="rateclass" class="col-form-label">課程評分:</label>
+                            <input type="text" class="form-control" id="rateclass">
+                        </div>
+                        <div class="col-md"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="commentclass" class="col-form-label">課程評論:</label>
+                        <textarea class="form-control" id="commentclass"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="coachname" class="col-form-label"><h3>教練:</h3></label>
+                        <input type="text" class="form-control" id="coachname" disabled>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md">
+                            <label for="ratecoach" class="col-form-label">教練評分:</label>
+                            <input type="text" class="form-control" id="ratecoach">
+                        </div>
+                        <div class="col-md"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="commentcoach" class="col-form-label">教練評論:</label>
+                        <textarea class="form-control" id="commentcoach"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="saveComment" onclick="saveComment(selectedRateID, selectedReserveID)">送出</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+
+        (() => {
+            'use strict'
+
+            let _id = @Model.id
+                let cid = @Model.role_id
+
+                            const lis = document.querySelectorAll('#nav li')
+            const ld = document.getElementById('div_load')
+            var temp = document.getElementById('我的課程')
+            const btn = document.getElementById('btn');
+            const sp1 = document.getElementById('span_1');
+            const sp2 = document.getElementById('span_2');
+            const sp3 = document.getElementById('span_3');
+            const sp4 = document.getElementById('span_4');
+            const sp5 = document.getElementById('sp1');
+            const sp6 = document.getElementById('sp2');
+            const sp7 = document.getElementById('sp3');
+            const sp8 = document.getElementById('sp4');
+
+
+
+            var currentDate = new Date();
+            var year = currentDate.getFullYear();
+            var month = currentDate.getMonth() + 1;
+            var day = currentDate.getDate();
+            var formattedDate = `${year}/${month < 10 ? '0' + month : month}/${day < 10 ? '0' + day : day}`;
+            sp1.textContent = formattedDate;
+
+            for (let li of lis) {
+                li.addEventListener('click', async (event) => {
+                    temp.classList.add('disable')
+                    temp = ld
+                    temp.classList.remove('disable')
+
+                    await reload(parseInt(`${li.childNodes[5].textContent}`));
+
+                    let txt = li.childNodes[1].textContent
+                    var div = document.getElementById(`${txt}`)
+                    temp.classList.add('disable')
+                    div.classList.remove("disable")
+                    //console.log(temp)
+                    temp = div
+                    //console.log(temp)
+                })
+            };
+
+            async function onload() {
+                const response = await fetch(`https://localhost:7199/api/Member/${_id}`);
+                const data = await response.json();
+                console.log('data', data)
+                init(data)
+                reload(1);
+                ld.classList.add('disable')
+                temp.classList.remove("disable")
+            };
+
+            function init({ memberDetailDto, reserveDetailDtos, comments, followAndBlackList }) {
+                const d1 = document.getElementById('txt1')
+                const p1 = document.getElementById('pic1')
+
+                d1.textContent = `您好，${memberDetailDto.roleDescription}${memberDetailDto.name}`
+                p1.src = `data:image/jpeg;base64,${memberDetailDto.photo}`
+
+                const num_r = reserveDetailDtos.length
+                const num_f = followAndBlackList.follow.length
+                const num_b = followAndBlackList.blackList.length
+                const num_c = comments.length
+
+                sp5.textContent = `${num_r}`
+                sp8.textContent = `${num_f}`
+
+                let classtime = reserveDetailDtos.reduce((sum, reserveDetailDtos) => {
+                    let time1 = parseInt(`${reserveDetailDtos.time.timeList[0].substring(0, 2)}`)
+                    let time2 = parseInt(`${reserveDetailDtos.time.timeList[1].substring(0, 2)}`)
+                    if (time1 === time2) {
+                        return sum + 1
+                    }
+                    return sum + (time2 - time1 + 1)
+                }, 0);
+                sp2.textContent = `${num_r}堂，共${classtime}小時`
+
+                if (num_c === 0) {
+                    sp4.textContent = '尚未發布文章'
+                } else {
+                    sp4.textContent = `共${num_c}篇`
+                }
+            };
+
+            onload();
+
+            async function reload(num) {
+                var str = '';
+                switch (num) {
+                    case 1:
+                        const response1 = await fetch(`https://localhost:7199/api/Member/${_id}`);
+                        const data1 = await response1.json();
+                        let courses = data1.reserveDetailDtos
+                        let tb1 = document.getElementById('tb1')
+                        str = ''
+                        if (courses.length === 0) {
+                            document.getElementById('list-item-1').textContent = '您尚未預約任何課程!'
+                            return;
+                        };
+
+                        for (let i = 0; i < courses.length; i++) {
+                            let time1 = parseInt(`${courses[i].time.timeList[0].substring(0, 2)}`)
+                            let time2 = parseInt(`${courses[i].time.timeList[1].substring(0, 2)}`)
+                            if (time1 === time2) {
+                                time2 = time1 + 1
+                            };
+                            let time_str = `${courses[i].time.date.slice(5, 7)}/${courses[i].time.date.slice(8, 10)} ${time1}:00-${time2}:00`
+                            let stat_txt = ''
+                            if (courses[i].reserveStatus === true) {
+                                stat_txt = '預約成功'
+                            } else {
+                                stat_txt = '未付款'
+                            };
+                            let reservedID = courses[i].reserveId
+                            str += `<tr>
+                                                        <td>${i + 1}</td>
+                                                        <td>${courses[i].class}</td>
+                                                        <td>${courses[i].coach}</td>
+                                                        <td>${courses[i].address}</td>
+                                                        <td>${time_str}</td>
+                                                        <td>${courses[i].courseFee}</td>
+                                                        <td>${stat_txt}</td>
+                                                        <td>
+                                                        <button class="btn btn-outline-warning" type="button" data-bs-toggle="modal" data-bs-target="#commentModal" onclick="chosenOne(${reservedID})">
+                                                         評分/評論
+                                                         </button>
+                                                         </td>
+                                                        <td>
+                                                            <a href="https://localhost:7168/course/search/?${courses[i].schedule_id}" >
+                                                                <button class="btn btn-outline-primary">檢視
+                                                        </td>
+                                                        <td>
+                                                        <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#Modal1">
+                                                            取消預約
+                                                        </button>
+
+                                                        <div class="modal fade" id="Modal1" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h1 class="modal-title fs-5" id="exampleModalLabel">取消預約確認</h1>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <h3>您確定要取消預約嗎?</h3>
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-outline-success" data-bs-dismiss="modal">返回</button>
+                                                                        <button type="button" class="btn btn-outline-danger">確認</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        </td>
+                                                        </tr>`
+                        };
+                        tb1.innerHTML = str
+                        //console.log('ss')
+                        return;
+                    case 2:
+
+                        //  訂單
+
+
+                        /*
+                                    <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col">名稱</th>
+                                                    <th scope="col">類別</th>
+                                                    <th scope="col">數量</th>
+                                                    <th scope="col">費用</th>
+                                                    <th scope="col">時間</th>
+                                                    <th scope="col">狀態</th>
+                                                    <th scope="col">檢視</th>
+                                                    <th scope="col">取消</th>
+                                                </tr>
+                        */
+                        return;
+                    case 3:
+
+                        // 蒐藏
+
+                        /*
+                                    <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col">類別</th>
+                                                    <th scope="col">名稱</th>
+                                                    <th scope="col">數量</th>
+                                                    <th scope="col">時間</th>
+                                                    <th scope="col">狀態</th>
+                                                    <th scope="col">檢視</th>
+                                                    <th scope="col">取消</th>
+                                                </tr>
+                        */
+                        return;
+                    case 4:
+                        const response4 = await fetch(`https://localhost:7199/api/Member/${_id}`);
+                        const data4 = await response4.json();
+                        let { follow, blackList } = data4.followAndBlackList
+                        const num_f = follow.length
+                        const num_b = blackList.length
+                        let tb4 = document.getElementById('tb4')
+                        str = ''
+                        if (num_f !== 0) {
+                            for (let i = 0; i < num_f; i++) {
+                                let exp_str = follow[i].experts[0]
+                                if (follow[i].experts[0].length > 1) {
+                                    exp_str = follow[i].experts.join(", ")
+                                };
+                                str += `
+                                                        <tr>
+                                                        <td>${i + 1}</td>
+                                                        <td>${follow[i].name}</td>
+                                                        <td>${exp_str}</td>
+                                                        <td>${follow[i].status}</td>
+                                                        <td>
+                                                            <a href="https://localhost:7168/Trainer/Coach?id=${follow[i].id}" >
+                                                                <button class="btn btn-outline-primary">檢視
+                                                        </td>
+                                                        <td>
+                                                            <button class="btn btn-outline-danger" id="tofollow" value=${follow[i].id}>取消</button>
+                                                        </td>
+                                                        </tr>`
+                            };
+                        };
+                        if (num_b !== 0) {
+                            for (let i = 0; i < num_b; i++) {
+                                let exp_str = follow[i].experts[0]
+                                if (exp_str = follow[i].experts[0].length > 1) {
+                                    exp_str = follow[i].experts.join(", ")
+                                }
+                                str += `
+                                                        <tr>
+                                                        <td>${i + 1}</td>
+                                                        <td>${follow[i].name}</td>
+                                                        <td>${exp_str}</td>
+                                                        <td>${follow[i].status}</td>
+                                                        <td>
+                                                            <a href="https://localhost:7168/Trainer/Coach?id=${follow[i].id}" >
+                                                                <button class="btn btn-outline-primary">檢視
+                                                        </td>
+                                                        <td>
+                                                            <button class="btn btn-outline-danger">取消</button>
+                                                        </td>
+                                                        </tr>`
+                            }
+                        }
+                        tb4.innerHTML = str
+                        //var btns = document.querySelectorAll('tofollow');
+                        var btns = document.querySelectorAll('#tofollow')
+                        console.log(btns)
+
+                        btns.forEach(button => {
+                            button.addEventListener('click', async () => {
+                                let url = `https://localhost:7199/api/CoachTrack/${_id}/${button.value}`
+                                var resp = await fetch(url, {
+                                    method: 'DELETE'
+                                });
+                                reload(4);
+                                onload();
+                            });
+                        });
+                        return;
+                    default:
+                        return;
+                };
+            };
+
+        })();
+
+
+        const LoginMemberID = @Model.id;
+        console.log('LoginMemberID', LoginMemberID);
+        const preview = document.querySelector('#imgShow');
+        const username = document.querySelector('#idUserName');
+        const email = document.querySelector('#idEmail');
+        const phone = document.querySelector('#idPhone');
+        const address = document.querySelector('#idAddress');
+        var membereditModal = new bootstrap.Modal(document.getElementById('membereditModal'));
+        //評論用
+        var commentModal = new bootstrap.Modal(document.getElementById('commentModal'));
+        let selectedRateID = null;
+        let selectedReserveID = null;
+
+        const putData = {
+            "name": "",
+            "phone": "",
+            "eMail": "",
+            "photo": "",
+            "imageBase64": "",
+            "address": ""
+        }
+        function showSuccessModal() {
+            const modal = new bootstrap.Modal(document.getElementById('successModal'));
+            modal.show();
+            setTimeout(() => {
+                modal.hide();
+            }, 2468);
+        }
+        function showFailedModal() {
+            const modal = new bootstrap.Modal(document.getElementById('failedModal'));
+            modal.show();
+            setTimeout(() => {
+                modal.hide();
+            }, 1357);
+        }
+
+        // 預覽選擇影像&轉成base64
+        function triggerFileInput() {
+            document.getElementById('imgLoad').click();
+        }
+        document.getElementById('imgLoad').addEventListener('change', function (event) {
+            const fileInput = event.target;
+            const files = fileInput.files;
+            if (files.length > 0) {
+                const file = files[0];
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+
+                const byteReader = new FileReader();
+                byteReader.onload = function (e) {
+                    const arrayBuffer = e.target.result;
+                    const byteArray = new Uint8Array(arrayBuffer);
+                    const base64String = btoa(String.fromCharCode.apply(null, byteArray));
+                    console.log('Image in base64:', base64String);
+                    putData.photo = file.name;
+                    putData.imageBase64 = base64String;
+                };
+                byteReader.readAsArrayBuffer(file);
+            }
+        });
+        // 取得表單數據
+        document.getElementById('buttonSubmit').addEventListener('click', function () {
+            if (username.value == '' || email.value == '' || phone.value == '' || address.value == '') { showFailedModal(); return; }
+            putData.name = username.value;
+            putData.phone = phone.value;
+            putData.eMail = email.value;
+            putData.address = address.value;
+            console.log(putData);
+            submission();
+        });
+
+        //載入會員資料
+        (async () => {
+            if (LoginMemberID === '0') {
+                window.location.assign('https://localhost:7168/Home/login');
+            }
+            let url = 'https://localhost:7199/api/Member/users/' + LoginMemberID;
+            //console.log('url=', url);
+            let response = await fetch(url);
+            let data = await response.json();
+            console.log(data);
+            //photo,address,birthday,eMail,name,phone,genderId
+            putData.name = data.name;
+            putData.eMail = data.eMail;
+            putData.phone = data.phone;
+            putData.photo = data.address;
+            document.querySelector('#idbirthday').value = data.birthday;
+            var gender = '';
+            if (data.genderId == 1) gender = '男性';
+            else if (data.genderId == 2) gender = '女性';
+            else gender = '其他';
+            document.querySelector('#idgender').value = gender;
+
+            username.value = data.name;
+            email.value = data.eMail;
+            phone.value = data.phone;
+            address.value = data.address;
+            preview.src = 'data:image/jpeg;base64,' + data.photo;
+        })();
+
+        //送出修改
+        const submission = async () => {
+            let url = 'https://localhost:7199/api/Member/' + LoginMemberID;
+            let response = await fetch(url, {
+                method: 'PUT',
+                body: JSON.stringify(putData),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            let data = await response.text();
+            if (response.ok) {
+                showSuccessModal();
+                setTimeout(() => {
+                    window.location.assign('https://localhost:7168/member/profile');
+                }, 2800);
+            } else { showFailedModal(); }
+        }
+
+
+        //確認新增/修改
+        async function saveComment(selectedRateID, selectedReserveID) {
+            const rateClass = document.querySelector('#rateclass').value;
+            const commentClass = document.querySelector('#commentclass').value;
+            const rateCoach = document.querySelector('#ratecoach').value;
+            const commentCoach = document.querySelector('#commentcoach').value;
+            var datafeedback;
+            const rateData = {
+                rateClass: rateClass,
+                rateClassDescribe: commentClass,
+                rateCoach: rateCoach,
+                rateCoachDescribe: commentCoach
+            };
+
+            let url;
+            let method;
+
+            if (selectedRateID) {
+                url = `https://localhost:7199/api/Comment/Rate/${selectedRateID}`;
+                method = 'PUT';
+            } else {
+                url = 'https://localhost:7199/api/Comment';
+                method = 'POST';
+                rateData.reserveId = selectedReserveID;
+                rateData.memberId = LoginMemberID;
+            }
+
+            let response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(rateData)
+            });
+
+            let data = await response.text();
+            // console.log('saveComment', data);
+            // console.log(commentModal);
+            commentModal.hide();
+            if (response.ok) {
+                showSuccessModal();
+                setTimeout(() => {
+                    window.location.assign('https://localhost:7168/member/profile');
+                }, 2800);
+            } else {
+                showFailedModal();
+            }
+        };
+        //載入其一課程
+        async function chosenOne(reservedID) {
+            let url0 = 'https://localhost:7199/api/Comment?id=' + LoginMemberID;
+            let response = await fetch(url0);
+            data = await response.json();
+            selectedReserveID = reservedID;
+            let url = `https://localhost:7199/api/Comment/Rate/${reservedID}`;
+            let response1 = await fetch(url);
+            let data1 = await response1.json();
+
+            if (data1) {
+                selectedRateID = data1.rateId || null;
+                document.querySelector('#classname').value = data1.className || '';
+                document.querySelector('#rateclass').value = data1.rateClass || '';
+                document.querySelector('#commentclass').value = data1.rateClassDescribe || '';
+                document.querySelector('#coachname').value = data1.coachName || '';
+                document.querySelector('#ratecoach').value = data1.rateCoach || '';
+                document.querySelector('#commentcoach').value = data1.rateCoachDescribe || '';
+            }
+            console.log('foundClass', data);
+            if (data1.status == 404) {
+                var data2;
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i].classReserveId == reservedID) {
+                        data2 = data[i]
+                    }
+                }
+                document.querySelector('#classname').value = data2.className;
+                document.querySelector('#coachname').value = data2.coachName;
+            }
+            commentModal.show();
+        }
+    </script>
+}

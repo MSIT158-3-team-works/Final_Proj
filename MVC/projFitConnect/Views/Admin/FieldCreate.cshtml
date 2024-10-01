@@ -1,44 +1,135 @@
 ﻿@{
     ViewData["Title"] = "FieldCreate";
 }
-
-<div style="padding-top:120px;"></div>
-<h1>新增場地</h1>
-<div>
-    <p>
-        <form method="post" action="~/" enctype="multipart/form-data">
-            <div class="col-md-6">
-                <p>
-                    <h3>請輸入場館名</h3><br />
-                    <div class="input-group mb-3">
-                        <span class="input-group-text" id="basic-addon1">場地名</span>
-                        <input type="text" class="form-control" placeholder="例:50米游泳池" aria-label="場地名" aria-describedby="basic-addon1">
+@section Styles {
+    <style>
+        .main {
+            width: 92%;
+            margin: auto;
+        }
+    </style>
+}
+<h1 style="padding-left:64px;">新增場地</h1>
+<div class="main">
+    <div>
+        <form method="post" action="https://localhost:7199/api/Gym" class="needs-validation" enctype="multipart/form-data" id="fieldform" novalidate>
+            <input type="hidden" name="GymId" id="GymId" />
+            <div class="row needs-validation" novalidate>
+                <div class="col-md-6">
+                    <div>
+                        <h3>請輸入場地名</h3><br />
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="basic-addon1">場地名</span>
+                            <input type="text" class="form-control" placeholder="例:50米游泳池" aria-label="場地名" aria-describedby="basic-addon1" name="FieldName" id="FieldName" required>
+                            <div class="invalid-feedback">
+                                請輸入場地名
+                            </div>
+                        </div>
                     </div>
-                </p>
-                <p>
-                    <h3>場館</h3><br />
-                    <select class="form-select" aria-label="Default select example">
-                        <option>請選擇場館</option>
-                    </select>
-                </p>
-                <p>
-                    <h3>請輸入場地簡介</h3><br />
-                    <div class="input-group mb-3">
-                        <span class="input-group-text" id="basic-addon1">場地簡介</span>
-                        <input type="text" class="form-control" placeholder="例:本館設有:游泳池" aria-label="場地" aria-describedby="basic-addon1">
+                    <div>
+                        <h3>請輸入場地樓層</h3><br />
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="basic-addon1">樓層</span>
+                            <input type="text" class="form-control" placeholder="例:1F" aria-label="樓層" aria-describedby="basic-addon1" name="Floor" id="Floor" required>
+                            <div class="invalid-feedback">
+                                請輸入場地樓層
+                            </div>
+                        </div>
                     </div>
-                </p>
-                <p>
+                    <div>
+                        <h3>請輸入場地費用</h3><br />
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="basic-addon1">場地費用</span>
+                            <input type="text" class="form-control" placeholder="例:1000" aria-label="場地費用" aria-describedby="basic-addon1" name="FieldPayment" id="FieldPayment" required>
+                            <div class="invalid-feedback">
+                                請輸入場地費用
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <button type="submit" class="btn btn-primary" id="btnsubmit">送出並新增</button>
+                    <a href="https://localhost:7168/Admin/FieldReviewList" class="btn btn-outline-secondary">取消</a>
+                    <button type="button" class="btn btn-info" id="btnDemo">Demo</button>
+                </div>
+                <div class="col-md-6">
                     <div class="mb-3">
                         <label for="formFileSm" class="form-label"><h3>上傳場地照片</h3></label>
-                        <input class="form-control form-control-sm" id="formFileSm" type="file">
+                        <input class="form-control form-control-sm" id="formFileSm" type="file" name="UploadedFieldPhoto" onchange="previewImage(event)" required>
+                        <div class="invalid-feedback">請上傳場館照片</div>
                     </div>
-                </p>
-                <p>
-                    <input type="submit" value="送出並新增" />
-                </p>
+                    <div class="mb-3">
+                        <h3>照片預覽</h3>
+                        <img src="" class="img-fluid rounded-start" />
+                    </div>
+                </div>
             </div>
         </form>
-    </p>
+    </div>
 </div>
 
+@section Scripts {
+    <script>
+        // 讀取gymId
+        const params = new URLSearchParams(window.location.search);
+        const gymId = params.get('id');
+        console.log("gymId", gymId)
+        // 設定隱藏輸入的值
+        document.getElementById('GymId').value = gymId;
+        const fieldform = document.getElementById('fieldform');
+        fieldform.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const response = await fetch('https://localhost:7199/api/Gym',
+                {
+                    method: 'POST',
+                    body: new FormData(fieldform)
+                });
+            const data = await response.json();
+            if (data.success) {
+                window.location.href = '@Url.Content("~/Admin/FieldReviewList")';
+                alert('新增成功');
+            }
+            console.log(data);
+        });
+        //照片預覽
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const preview = document.querySelector('.img-fluid');
+            const reader = new FileReader();
+
+            reader.onload = function () {
+                preview.src = reader.result;
+            }
+
+            if (file) {
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = "";
+            }
+        }
+        //Demo
+        document.getElementById('btnDemo').addEventListener('click', async () => {
+            document.getElementById('FieldName').value = "多功能教室";
+            document.getElementById('Floor').value = "2F";
+            document.getElementById('FieldPayment').value = "1000";
+        });
+        //資料檢查
+        (() => {
+            'use strict'
+
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            const forms = document.querySelectorAll('.needs-validation')
+
+            // Loop over them and prevent submission
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+    </script>
+}

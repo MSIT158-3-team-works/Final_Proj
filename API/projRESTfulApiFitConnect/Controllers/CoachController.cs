@@ -13,6 +13,8 @@ using Microsoft.IdentityModel.Tokens;
 using projRESTfulApiFitConnect.DTO;
 using projRESTfulApiFitConnect.DTO.Coach;
 using projRESTfulApiFitConnect.DTO.Gym;
+using projRESTfulApiFitConnect.DTO.Member;
+using projRESTfulApiFitConnect.DTO.Product;
 using projRESTfulApiFitConnect.Models;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -47,7 +49,7 @@ namespace projRESTfulApiFitConnect.Controllers
             List<CoachDetailDto> coachDetailDtos = new List<CoachDetailDto>();
 
             var coaches = await _context.TIdentities
-                        .Where(x => x.RoleId == 2)
+                        .Where(x => x.RoleId == 2&&x.Activated==true)
                         .Include(x => x.Gender)
                         .Include(x => x.TcoachInfoIds)
                         .Include(x => x.TcoachExperts)
@@ -64,15 +66,13 @@ namespace projRESTfulApiFitConnect.Controllers
                         .ToListAsync();
 
 
-            //List<TmemberRateClass> ratelist = new List<TmemberRateClass>();
-            //TmemberRateClass[] rlist = new TmemberRateClass[coaches.Count];
-            //ratelist = coaches.
             foreach (var item in coaches)
             {
                 var experts = item.TcoachExperts.Select(te => new ExpertiseDto
                 {
                     ClassName = te.Class.ClassName,
                     ClassSort1ID = te.Class.ClassSort1.ClassSort1Id,
+                    ClassSort2ID = te.Class.ClassSort2.ClassSort2Id,
                     ClassSort1 = te.Class.ClassSort1.ClassSort1Detail.ToString(),
                     ClassSort2 = te.Class.ClassSort2.ClassSort2Detail.ToString()
                 }).ToList();
@@ -82,17 +82,6 @@ namespace projRESTfulApiFitConnect.Controllers
                     RegionId = fr.Field.Gym.Region.RegionId,
                     Region = fr.Field.Gym.Region.Region.ToString()
                 }).ToList();
-                //rlist.Append(item.TmemberRateClasses);
-
-                //var rates = item.TmemberRateClasses.Select(x => new List<decimal>
-                //[
-                //    RateCoach = x.RateCoach
-                //]).ToList();
-                //decimal avRate=0;
-                //foreach (var itemRate in rates)
-                //{
-                //    avRate = avRate + (decimal)itemRate;
-                //}
                 var rates = item.TmemberRateClasses.Select(x => new rateCoachDTO
                 {
                     RateCoach = x.RateCoach
@@ -153,6 +142,10 @@ namespace projRESTfulApiFitConnect.Controllers
             //排序
             switch (coachSearchDTO.sortBy)
             {
+                //依年齡
+                case "Ages":
+                    everyCoach = coachSearchDTO.sortType == "asc" ? everyCoach.OrderBy(s => s.Birthday) : everyCoach.OrderByDescending(s => s.Birthday);
+                    break;
                 //依地區
                 case "RegionId":
                     everyCoach = coachSearchDTO.sortType == "asc" ? everyCoach.OrderBy(s => s.Region[0].RegionId) : everyCoach.OrderByDescending(s => s.Region[0].RegionId);
@@ -160,6 +153,10 @@ namespace projRESTfulApiFitConnect.Controllers
                 //依有/無氧
                 case "Sort1ID":
                     everyCoach = coachSearchDTO.sortType == "asc" ? everyCoach.OrderBy(s => s.Experties[0].ClassSort1ID) : everyCoach.OrderByDescending(s => s.Experties[0].ClassSort1ID);
+                    break;
+                //依課程種類
+                case "Sort2ID":
+                    everyCoach = coachSearchDTO.sortType == "asc" ? everyCoach.OrderBy(s => s.Experties[0].ClassSort2ID) : everyCoach.OrderByDescending(s => s.Experties[0].ClassSort2ID);
                     break;
                 //依性別
                 case "GenderID":
@@ -190,8 +187,17 @@ namespace projRESTfulApiFitConnect.Controllers
         }
 
 
-
-
+        //教練多圖
+        private async Task<string> GetBase64Image(string coachImage)
+        {
+            string filepath = Path.Combine(_env.ContentRootPath, "Images", "CoachImages", coachImage);
+            if (System.IO.File.Exists(filepath))
+            {
+                byte[] bytes = await System.IO.File.ReadAllBytesAsync(filepath);
+                return Convert.ToBase64String(bytes);
+            }
+            return string.Empty;
+        }
 
 
         // GET: api/Coach/5
@@ -205,16 +211,19 @@ namespace projRESTfulApiFitConnect.Controllers
             List<ScheduleDatailDto> scheduleDatailDtos = new List<ScheduleDatailDto>();
             List<ExpertiseDto> expertiseDtos = new List<ExpertiseDto>();
 
-            var coach = await _context.TIdentities.Where(x => x.RoleId == 2 && x.Id == id).Include(x => x.Gender).Include(x => x.Role).Include(x => x.TcoachInfoIds).FirstOrDefaultAsync();
+            var coach = await _context.TIdentities.Where(x => x.RoleId == 2 && x.Id == id).Include(x => x.Gender).Include(x => x.Role).Include(x => x.TcoachInfoIds).Include(x => x.TcoachPhotos).FirstOrDefaultAsync();
             if (coach == null)
             {
                 return NotFound();
             }
-
+            var images = coach.TcoachPhotos.Select(img => new CoachImagesDTO
+            {
+                coachImages = img.CoachPhoto
+            }).ToList();
             var coachInfo = coach.TcoachInfoIds.FirstOrDefault();
             var experts = await _context.TcoachExperts.Where(x => x.CoachId == id).Include(x => x.Class.ClassSort2).ToListAsync();
             var rates = await _context.TmemberRateClasses.Where(x => x.CoachId == id).Include(x => x.Reserve.Member).Include(x => x.Reserve.ClassSchedule.Class).ToListAsync();
-            var schedules = await _context.TclassSchedules.Where(x => x.CoachId == id).Include(x => x.CourseStartTime).Include(x => x.ClassStatus).ToListAsync();
+            var schedules = await _context.TclassSchedules.Where(x => x.CoachId == id).Include(x => x.CourseStartTime).Include(x => x.ClassStatus).Include(x => x.Class).ToListAsync();
             var fields = await _context.TfieldReserves.Where(x => x.CoachId == id).Include(x => x.Field.Gym.Region.City).ToListAsync();
 
             if (!string.IsNullOrEmpty(coach.Photo))
@@ -224,7 +233,7 @@ namespace projRESTfulApiFitConnect.Controllers
                 base64Image = Convert.ToBase64String(bytes);
             }
             foreach (var expert in experts)
-            { 
+            {
                 ExpertiseDto expertiseDto = new ExpertiseDto()
                 {
                     ClassName = expert.Class.ClassName,
@@ -251,8 +260,23 @@ namespace projRESTfulApiFitConnect.Controllers
                 Intro = coachInfo.CoachIntro,
                 Experties = expertiseDtos,
                 RoleDescription = coach.Role.RoleDescribe,
-                GenderDescription = coach.Gender.GenderText
+                GenderDescription = coach.Gender.GenderText,
+                Images = images,
+                Base64Images = new List<string>()
             };
+            if (images.Count > 0)
+            {
+                foreach (var image in images)
+                {
+                    if (!string.IsNullOrEmpty(image.coachImages))
+                    {
+                        string base64Img = await GetBase64Image(image.coachImages);
+                        coachDetailDto.Base64Images.Add(base64Img);
+                    }
+                }
+            }
+
+
             foreach (var rate in rates)
             {
                 RateDetailDto rateDetailDto = new RateDetailDto()
@@ -290,6 +314,7 @@ namespace projRESTfulApiFitConnect.Controllers
                     GymPhone = field.Field.Gym.GymPhone,
                     GymAddress = field.Field.Gym.GymAddress,
                     Field = field.Field.FieldName,
+                    Payment = (double)field.Field.FieldPayment,
                     PaymentStatus = field.PaymentStatus,
                     ReserveStatus = field.ReserveStatus
                 };
@@ -297,23 +322,33 @@ namespace projRESTfulApiFitConnect.Controllers
             }
             foreach (var schedule in schedules)
             {
+                string filepath = "";
+                string base64Image2 = "";
+                filepath = Path.Combine(_env.ContentRootPath, "Images", "ClassPic", schedule.Class.ClassPhoto);
+                if (System.IO.File.Exists(filepath))
+                {
+                    byte[] bytes = await System.IO.File.ReadAllBytesAsync(filepath);
+                    base64Image2 = Convert.ToBase64String(bytes);
+                }
+
                 ScheduleDatailDto scheduleDatailDto = new ScheduleDatailDto()
                 {
                     ClassScheduleId = schedule.ClassScheduleId,
                     Class = schedule.Class.ClassName,
                     Coach = schedule.Coach.Name,
+                    GymName = schedule.Field.Gym.GymName,
                     Field = schedule.Field.FieldName,
                     CourseDate = schedule.CourseDate,
                     CourseTime = schedule.CourseTimeId,
+                    CourseStartTime = schedule.CourseStartTime.TimeName,
                     MaxStudent = schedule.MaxStudent,
                     ClassStatus = schedule.ClassStatus.ClassStatusDiscribe,
                     ClassPayment = schedule.ClassPayment,
-                    CoachPayment = schedule.CoachPayment
+                    CoachPayment = schedule.CoachPayment,
+                    Photo = base64Image2
                 };
                 scheduleDatailDtos.Add(scheduleDatailDto);
             }
-
-
             var result = new
             {
                 coachDetailDto,
@@ -411,5 +446,249 @@ namespace projRESTfulApiFitConnect.Controllers
 
             return Ok(maa);
         }
+
+
+        // GET: api/Coach
+        //取得所有審核教練資料(個人資料、自我介紹)
+        [HttpGet("verify")]
+        public async Task<ActionResult<IEnumerable<CoachDetailDto>>> verifyCoaches()
+        {
+            string filepath = "";
+
+            List<CoachDetailDto> coachDetailDtos = new List<CoachDetailDto>();
+
+            var coaches = await _context.TIdentities
+                        .Where(x => x.RoleId == 4)
+                        .Include(x => x.Gender)
+                        .Include(x => x.TcoachInfoIds)
+                        .Include(x => x.TcoachExperts)
+                        .ThenInclude(te => te.Class)
+                        .Include(x => x.TcoachExperts)
+                        .ThenInclude(te => te.Class.ClassSort1)//有氧、無氧、其他
+                        .Include(x => x.TcoachExperts)
+                        .ThenInclude(te => te.Class.ClassSort2)//課程種類
+                        .ToListAsync();
+
+
+            foreach (var item in coaches)
+            {
+                var experts = item.TcoachExperts.Select(te => new ExpertiseDto
+                {
+                    ClassName = te.Class.ClassName,
+                    ClassSort1ID = te.Class.ClassSort1.ClassSort1Id,
+                    ClassSort2ID = te.Class.ClassSort2.ClassSort2Id,
+                    ClassSort1 = te.Class.ClassSort1.ClassSort1Detail.ToString(),
+                    ClassSort2 = te.Class.ClassSort2.ClassSort2Detail.ToString()
+                }).ToList();
+                string base64Image = "";
+                filepath = Path.Combine(_env.ContentRootPath, "Images", "CoachImages", item.Photo);
+                if (System.IO.File.Exists(filepath))
+                {
+                    byte[] bytes = await System.IO.File.ReadAllBytesAsync(filepath);
+                    base64Image = Convert.ToBase64String(bytes);
+                }
+                string intro = string.Join(", ", item.TcoachInfoIds.Select(i => i.CoachIntro));
+
+                CoachDetailDto coachDetailDto = new CoachDetailDto()
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    Phone = item.Phone,
+                    EMail = item.EMail,
+                    Photo = base64Image,
+                    Intro = intro,
+                    Birthday = item.Birthday,
+                    Address = item.Address,
+                    Experties = experts,
+                    GenderID = item.Gender.GenderId,
+                    GenderDescription = item.Gender.GenderText,
+                };
+                coachDetailDtos.Add(coachDetailDto);
+            }
+
+            return Ok(coachDetailDtos);
+        }
+
+        // GET: api/Coach/5/verify
+        //取得特定審核教練資料
+        [HttpGet("{id}/verify")]
+        public async Task<ActionResult> verifyCoache(int id)
+        {
+            string base64Image = "";
+            List<ExpertiseDto> expertiseDtos = new List<ExpertiseDto>();
+
+            var coach = await _context.TIdentities.Where(x => x.RoleId == 4 && x.Id == id).Include(x => x.Gender).Include(x => x.Role).Include(x => x.TcoachInfoIds).Include(x => x.TcoachPhotos).FirstOrDefaultAsync();
+            if (coach == null)
+            {
+                return NotFound();
+            }
+            var images = coach.TcoachPhotos.Select(img => new CoachImagesDTO
+            {
+                coachImages = img.CoachPhoto
+            }).ToList();
+            var coachInfo = coach.TcoachInfoIds.FirstOrDefault();
+            var experts = await _context.TcoachExperts.Where(x => x.CoachId == id).Include(x => x.Class.ClassSort2).ToListAsync();
+
+            if (!string.IsNullOrEmpty(coach.Photo))
+            {
+                string path = Path.Combine(_env.ContentRootPath, "Images", "CoachImages", coach.Photo);
+                byte[] bytes = System.IO.File.ReadAllBytes(path);
+                base64Image = Convert.ToBase64String(bytes);
+            }
+            foreach (var expert in experts)
+            {
+                ExpertiseDto expertiseDto = new ExpertiseDto()
+                {
+                    ClassName = expert.Class.ClassName,
+                    ClassSort2 = expert.Class.ClassSort2.ClassSort2Detail
+                };
+                expertiseDtos.Add(expertiseDto);
+            }
+            CoachDetailDto coachDetailDto = new CoachDetailDto()
+            {
+                Id = coach.Id,
+                Name = coach.Name,
+                Phone = coach.Phone,
+                EMail = coach.EMail,
+                Photo = base64Image,
+                Birthday = coach.Birthday,
+                Address = coach.Address,
+                Intro = coachInfo.CoachIntro,
+                Experties = expertiseDtos,
+                RoleDescription = coach.Role.RoleDescribe,
+                GenderDescription = coach.Gender.GenderText,
+                Images = images,
+                Base64Images = new List<string>()
+            };
+            if (images.Count > 0)
+            {
+                foreach (var image in images)
+                {
+                    if (!string.IsNullOrEmpty(image.coachImages))
+                    {
+                        string base64Img = await GetBase64Image(image.coachImages);
+                        coachDetailDto.Base64Images.Add(base64Img);
+                    }
+                }
+            }
+
+            return Ok(coachDetailDto);
+        }
+
+        // DELETE: api/Coach/5/verify
+        [HttpDelete("{id}/verify")]
+        public async Task<IActionResult> apprvalCoache(int id)
+        {
+            var tIdentity = await _context.TIdentities.FindAsync(id);
+            if (tIdentity == null)
+            {
+                return NotFound();
+            }
+
+            tIdentity.RoleId = 2;
+            await _context.SaveChangesAsync();
+
+            return Ok("Coache apprval");
+        }
+
+        // DELETE: api/Coach/5/verify
+        [HttpDelete("{id}/denial")]
+        public async Task<IActionResult> denialCoache(int id)
+        {
+            var tIdentity = await _context.TIdentities.FindAsync(id);
+            if (tIdentity == null)
+            {
+                return NotFound();
+            }
+
+            var info = await _context.TcoachInfoIds.Where(x => x.CoachId == id).ToListAsync();
+            _context.TcoachInfoIds.RemoveRange(info);
+            var expert = await _context.TcoachExperts.Where(x => x.CoachId == id).ToListAsync();
+            _context.TcoachExperts.RemoveRange(expert);
+            var photo = await _context.TcoachPhotos.Where(x => x.Id == id).ToListAsync();
+            _context.TcoachPhotos.RemoveRange(photo);
+
+            tIdentity.RoleId = 1;
+            await _context.SaveChangesAsync();
+
+            return Ok("rejected");
+        }
+
+        [HttpGet("unactivated")]
+        public async Task<ActionResult<IEnumerable<CoachDetailDto>>> GetunactivatedCoachs()
+        {
+            string filepath = "";
+
+            List<CoachDetailDto> coachDetailDtos = new List<CoachDetailDto>();
+
+            var coaches = await _context.TIdentities
+                        .Where(x => x.RoleId == 2 && x.Activated == false)
+                        .Include(x => x.Gender)
+                        .Include(x => x.TcoachInfoIds)
+                        .Include(x => x.TcoachExperts)
+                        .ThenInclude(te => te.Class)
+                        .Include(x => x.TcoachExperts)
+                        .ThenInclude(te => te.Class.ClassSort1)//有氧、無氧、其他
+                        .Include(x => x.TcoachExperts)
+                        .ThenInclude(te => te.Class.ClassSort2)//課程種類
+                        .Include(x => x.TfieldReserves)
+                        .ThenInclude(fr => fr.Field.Gym.Region)
+                        .Include(x => x.TfieldReserves)
+                        .ThenInclude(fr => fr.Field.Gym.Region.City)
+                        .Include(x => x.TmemberRateClasses)
+                        .ToListAsync();
+
+
+            foreach (var item in coaches)
+            {
+                var experts = item.TcoachExperts.Select(te => new ExpertiseDto
+                {
+                    ClassName = te.Class.ClassName,
+                    ClassSort1ID = te.Class.ClassSort1.ClassSort1Id,
+                    ClassSort2ID = te.Class.ClassSort2.ClassSort2Id,
+                    ClassSort1 = te.Class.ClassSort1.ClassSort1Detail.ToString(),
+                    ClassSort2 = te.Class.ClassSort2.ClassSort2Detail.ToString()
+                }).ToList();
+                var regions = item.TfieldReserves.Select(fr => new CityDto
+                {
+                    City = fr.Field.Gym.Region.City.City.ToString(),
+                    RegionId = fr.Field.Gym.Region.RegionId,
+                    Region = fr.Field.Gym.Region.Region.ToString()
+                }).ToList();
+                var rates = item.TmemberRateClasses.Select(x => new rateCoachDTO
+                {
+                    RateCoach = x.RateCoach
+                }).ToList();
+                string base64Image = "";
+                filepath = Path.Combine(_env.ContentRootPath, "Images", "CoachImages", item.Photo);
+                if (System.IO.File.Exists(filepath))
+                {
+                    byte[] bytes = await System.IO.File.ReadAllBytesAsync(filepath);
+                    base64Image = Convert.ToBase64String(bytes);
+                }
+                string intro = string.Join(", ", item.TcoachInfoIds.Select(i => i.CoachIntro));
+
+                CoachDetailDto coachDetailDto = new CoachDetailDto()
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    Phone = item.Phone,
+                    EMail = item.EMail,
+                    Photo = base64Image,
+                    Intro = intro,
+                    Birthday = item.Birthday,
+                    Address = item.Address,
+                    Experties = experts,
+                    GenderID = item.Gender.GenderId,
+                    GenderDescription = item.Gender.GenderText,
+                    Region = regions,
+                    CoachRate = rates
+                };
+                coachDetailDtos.Add(coachDetailDto);
+            }
+
+            return Ok(coachDetailDtos);
+        }
     }
+
 }

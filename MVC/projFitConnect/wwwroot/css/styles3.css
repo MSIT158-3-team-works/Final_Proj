@@ -34,7 +34,7 @@
 
 .colored_a {
     color: white;
-    text-decoration: none; /* 移除下划线 */
+    text-decoration: none; /* 移除底線 */
 }
 
     .colored_a:hover {
@@ -51,20 +51,19 @@
     font-weight: bold;
 }
 
-
-/*.masthead {
-    padding: 20px 0;
+.profile-button {
+    background: none;
+    border: none;
+    padding: 0;
+    outline: none;
 }
 
-    .masthead .container {
-        margin-top: 0;
-        margin-bottom: 0;
-    }
-
-    .masthead .masthead-subheading {
-        margin-top: 10px;
-    }
-
-    .masthead .masthead-heading {
-        margin-bottom: 10px;
-    }*/
+.offcanvas-backdrop {
+    background-color: transparent !important;
+}
+a {
+    text-decoration: none;
+}
+.offcanvas-body a {
+    color: black;
+}

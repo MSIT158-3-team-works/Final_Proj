@@ -49,14 +49,26 @@
     </style>
 }
 
-<h1 style="padding-left:64px;margin:15px 0;">上架商品</h1>
+<h1 style="padding-left:64px;margin:15px 0;" id="createheading">上架商品</h1>
 
 <div id="content">
     <aside class="aside">
         <section class="section">
             <h3 class="subtital">商品顯示圖</h3>
-            <div id="divimage">
-                <img id="preview" src="https://pbs.twimg.com/profile_images/1001436225402621952/bdez2BKN_400x400.jpg" alt="Image Preview" style="max-width: 100%; height: auto;">
+            <div id="carouselAddProduct" class="carousel slide">
+                <div class="carousel-inner" id="divimage">
+                    <div class="carousel-item active">
+                        <img id="preview" src="https://pbs.twimg.com/profile_images/1001436225402621952/bdez2BKN_400x400.jpg" alt="Image Preview" style="max-width: 100%; height: auto;">
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselAddProduct" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselAddProduct" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
             </div>
             <div class="mb-3">
                 <label for="formFile" class="form-label">預覽商品圖</label>
@@ -81,7 +93,7 @@
                 <div class="col-4 ">
                     <label class="form-label">類別</label>
                     <select class="form-select" aria-label="Default select example" id="category">
-                        <option selected value="">--選擇類別--</option>
+                        <option selected value="" id="categorywaitforselect">--選擇類別--</option>
                         <option value="1">乳清蛋白</option>
                         <option value="2">健康食品</option>
                         <option value="3">運動配件</option>
@@ -109,6 +121,30 @@
         </section>
     </article>
 </div>
+
+<!-- Modal -->
+<div class="modal" id="successModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="border-radius:10px; overflow:hidden;">
+        <div class="modal-content" style="height:300px;width:400px;position:relative;border-radius:10px;border-color:#CECEFF;">
+            <div class="modal-body" style="background-color:#ECFFFF; padding:0; position:relative; border-radius:10px;">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position:absolute; top:10px; right:10px;"></button>
+                <h5 style="position:absolute; top:10%; left:50%; transform:translate(-50%, -50%); color:#003D79; text-shadow: 1px 1px 2px #D9FFFF; font-weight:700;">新增成功!</h5>
+                <img src="https://cdn.dribbble.com/users/1154535/screenshots/3288650/dribbble-success-2.gif" alt="success" style="height:100%; width:100%; object-fit:cover; border-radius:10px;border-color:#CECEFF;">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="failedModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="border-radius:10px; overflow:hidden;">
+        <div class="modal-content" style="height:300px;width:400px;position:relative;border-radius:10px;border-color:#FFECEC;">
+            <div class="modal-body" style="background-color:#FBFFFD; padding:0; position:relative; border-radius:10px;">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position:absolute; top:10px; right:10px;"></button>
+                <h3 style="position:absolute; top:10%; left:50%; transform:translate(-50%, -50%); color:#600000; text-shadow: 1px 1px 2px #FFD9EC; font-weight:700;">新增失敗</h3>
+                <img src="https://i.giphy.com/pjFF8YLW996aXqFHAu.webp" alt="Failed" style="height:100%; width:100%; object-fit:cover; border-radius:10px;border-color:#FFECEC;">
+            </div>
+        </div>
+    </div>
+</div>
 @section Scripts {
     <script>
         const productImage = document.querySelector('#divimage');
@@ -119,13 +155,30 @@
         const add = document.querySelector('#btnadd');
         const postData = {
             "productName": "",
-            "categoryId": 6,
+            "categoryId": 0,
             "productUnitprice": 20,
             "productDetail": "",
-            "productImage": ""
+            "productImage": "",
+            "imageBase64": "",
+            "images": [],
+            "moreBase64Images": []
+        }
+        function showSuccessModal() {
+            const modal = new bootstrap.Modal(document.getElementById('successModal'));
+            modal.show();
+            setTimeout(() => {
+                modal.hide();
+            }, 2468);
+        }
+        function showFailedModal() {
+            const modal = new bootstrap.Modal(document.getElementById('failedModal'));
+            modal.show();
+            setTimeout(() => {
+                modal.hide();
+            }, 1357);
         }
 
-        //預覽選擇影像
+        //預覽選擇影像&轉成base64
         document.getElementById('formFile').addEventListener('change', function (event) {
             const fileInput = event.target;
             const files = fileInput.files;
@@ -137,8 +190,48 @@
                     preview.src = e.target.result;
                 };
                 reader.readAsDataURL(file);
+
+                const byteReader = new FileReader();
+                byteReader.onload = function (e) {
+                    const arrayBuffer = e.target.result;
+                    const byteArray = new Uint8Array(arrayBuffer);
+                    const base64String = btoa(String.fromCharCode.apply(null, byteArray));
+                    postData.productImage = file.name;
+                    postData.imageBase64 = base64String;
+                    console.log('Image in base64:', base64String);
+                };
+                byteReader.readAsArrayBuffer(file);
             }
         });
+        // 多張影像
+        document.getElementById('formFileMultiple').addEventListener('change', function (event) {
+            const fileInput = event.target;
+            const files = fileInput.files;
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const newPreview = `<div class="carousel-item">
+                                            <img src="${e.target.result}" class="d-block w-100" alt="Image Preview">
+                                        </div>`;
+                    productImage.insertAdjacentHTML('beforeend', newPreview);
+                };
+                reader.readAsDataURL(file);
+
+                const byteReader = new FileReader();
+                byteReader.onload = function (e) {
+                    const arrayBuffer = e.target.result;
+                    const byteArray = new Uint8Array(arrayBuffer);
+                    const base64String = btoa(String.fromCharCode.apply(null, byteArray));
+                    postData.images.push({ productImages: file.name });
+                    postData.moreBase64Images.push(base64String);
+                    console.log('file.name:', file.name);
+                    console.log('Image in base64:', base64String);
+                };
+                byteReader.readAsArrayBuffer(file);
+            });
+        });
+
         //檢查商品名稱
         productName.addEventListener('blur', (event) => {
             if(event.target.value==""){
@@ -178,19 +271,11 @@
         function getall() {
             const fileInput = document.getElementById('formFile');
             const files = fileInput.files;
-            if (files.length > 0) {
-                const file = files[0];
-                console.log('Selected file:', file);
-                postData.productImage = file.name;
-            } else {
-                alert('請選擇商品預覽圖');
-                return;
-            }
-            if (postData.productName == "") { alert('請填寫商品名稱'); return; }
-            if (postData.productDetail == "") { alert('請填寫商品詳細'); return; }
+            if (files.length <= 0||postData.productName == ""||postData.categoryId == 0
+            ||postData.productDetail == ""||postData.imageBase64 == "") 
+            { showFailedModal(); return; }
             console.log(postData);
             addProducts();
-            window.location.assign('https://localhost:7168/Admin/ProductList');
         }
 
         //新增商品資料
@@ -204,9 +289,26 @@
                 }
             });
             let data = await response.text();
-            alert('商品新增成功');
+            if (response.ok) {
+                showSuccessModal();
+                setTimeout(() => {
+                    window.location.assign('https://localhost:7168/Admin/ProductList');
+                }, 2800);
+            } else { showFailedModal(); }
         }
 
+
+        //DEMO
+        document.querySelector('#createheading').addEventListener('click', () => {
+            productName.value = 'NutroOne 單手調節專業啞鈴（5-45磅）';
+            document.getElementById('categorywaitforselect').textContent = '健身器材';
+            thePrice.value = '5999';
+            detail.value = `新一代可調啞鈴，調重更快捷方便，打造你的私人家用健身室。現在只要一對啞鈴, 便相當於16支不同重量的啞鈴。<ul><li>新款尺寸更纖巧，節省空間，同時能降低預算</li><li>單手操作，轉動啞鈴手抽位置，最快1秒極速調重</li><li>根據個人需要，方便調節重量，定立個人全身訓練目標</li><li>加強物料，沿用安全設計，讓你訓練時更安心</li></ul>`;
+            postData.productName = productName.value;
+            postData.categoryId = 4;
+            postData.productUnitprice = 5999;
+            postData.productDetail = detail.value;
+        })
     </script>
 }
 

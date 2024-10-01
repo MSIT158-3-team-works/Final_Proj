@@ -11,10 +11,11 @@
         }
         .create-btn{
             position: fixed;
-            top: 113px;
+            bottom: 73px;
             right: 0;
         }
-        .square-btn {
+
+        .round-btn {
             margin-right: 13px;
             width: 50px;
             height: 50px;
@@ -30,7 +31,7 @@
             border: 3px double #FF8000;
         }
 
-            .square-btn:hover {
+        .round-btn:hover {
                 border:none;
                 background-color: #4B0091;
                 color: whitesmoke;
@@ -39,6 +40,8 @@
         .vertical-text {
             writing-mode: vertical-rl; /* or vertical-lr */
             text-orientation: upright;
+            font-size:1.2em;
+            font-weight:700;
         }
 
         thead {
@@ -57,7 +60,7 @@
 }
 <h1 style="padding-left:64px;margin:15px 0;">商品清單</h1>
 <div class="create-btn">
-    <a href="ProductCreate/" class="btn square-btn">GO!</a>
+    <a href="ProductCreate/" class="btn round-btn">GO!</a>
     <p class="vertical-text">
         <img src="https://cdn4.iconfinder.com/data/icons/liny/24/hand-pointer-event-line-32.png" alt="|||">
         點擊新增商品</p>
@@ -114,13 +117,13 @@
         <thead>
             <tr>
                 <th class="row1 head">ID</th>
-                <th class="head">Photo</th>
-                <th class="head">Name</th>
-                <th class="head">Category</th>
-                <th class="head">Price</th>
-                <th class="head">Sold</th>
-                <th class="head">Detail</th>
-                <th class="head">Edit</th>
+                <th class="head">照片</th>
+                <th class="head">商品名稱</th>
+                <th class="head">商品類別</th>
+                <th class="head">單價</th>
+                <th class="head">銷售量</th>
+                <th class="head">詳細</th>
+                <th class="head">編輯</th>
             </tr>
         </thead>
         <tbody id="tablebody">
@@ -155,6 +158,24 @@
         <li><a href="#" style="margin-left:16px; border:none;">></a></li>
     </ul>
 </div>
+
+<div class="modal" id="denialModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color:#804040;color:whitesmoke;">
+                <h5 class="modal-title">商品停售</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="background-color:#FFF7FB;color:#000000">
+                <p>確定停止販售該商品?</p>
+            </div>
+            <div class="modal-footer" style="background-color:#FFF7FB;color:#000000">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" id="exedeny">停售</button>
+            </div>
+        </div>
+    </div>
+</div>
 @section Scripts {
     <script>
         let MaxPage = 0;
@@ -165,6 +186,7 @@
         const pagesize = document.querySelectorAll('[name="inlineRadioOptions"]');
         const body = document.querySelector('#tablebody')
         const ulPaging = document.getElementById('ulpaging');
+        var denialModal = new bootstrap.Modal(document.getElementById('denialModal'));
         const searchData = {
             "categoryId": 0,
             "keyword": "",
@@ -232,19 +254,17 @@
         }
         //停售按鈕
         async function offsale(id) {
-            if (confirm('確定要停售嗎?')) {
-                if (confirm('該商品即將停售')) {
-                    let url = 'https://localhost:7199/api/Products/' + id;
-                    let response = await fetch(url, {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    let data = await response.text();
-                    loadProducts();
-                }
-            }
+            denialModal.show();
+            document.querySelector('#exedeny').addEventListener('click', async () => {
+                let url = 'https://localhost:7199/api/Products/' + id;
+                let response = await fetch(url, {
+                    method: 'DELETE'
+                });
+                let data = await response.text();
+                console.log('denial', data);
+                denialModal.hide();
+                loadProducts();
+            })
         }
         //換頁
         const pagingHandler = (page) => {

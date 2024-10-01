@@ -1,4 +1,5 @@
-﻿@{
+﻿Updates to keyboard shortcuts … On Thursday, August 1, 2024, Drive keyboard shortcuts will be updated to give you first-letters navigation.Learn more
+@{
     ViewData["Title"] = "Login";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -36,11 +37,22 @@
                 <button type="button" class="btn btn-primary" id="buttonSubmit" style="font-size:24px; height:60px; width:46%; padding-top: 10px; padding-bottom: 10px;">登入</button>
                 <br>
                 @* TODO *@
-                <a href="https://m.shein.tw/" target="_blank" class="login_link" style="font-size:22px;font-weight:bold">忘記密碼</a>
-                <br>
+                @* <a href="https://m.shein.tw/" target="_blank" class="login_link" style="font-size:22px;font-weight:bold">忘記密碼</a>
+                <br> *@
                 <button type="button" class="btn btn-secondary" onclick="window.location.href='https://localhost:7168/home/register'" style="height:30px; width:46%;border-radius:10px;font-size:18px; padding-bottom: 50px;">點我註冊</button>
             </div>
-            <br><br>
+            <div style="text-align:center">
+                <button type="button" id="logindemo1">會員</button><button type="button" id="logindemo2">教練</button><button type="button" id="logindemo3">管理者</button>
+            </div>
+        </form>
+        @* <div>
+            <hr />
+            <partial name="_particalGoogle"></partial>
+            <hr />
+        </div> *@
+        <form action="Session" method="post" id="fetch_data" hidden>
+            <input type="text" id="id" name="id" />
+            <input type="text" id="role_id" name="role_id" />
         </form>
     </div>
 </div>
@@ -70,7 +82,7 @@
                     spAccount.innerHTML = "<img src=\"/assets/img/error.png\" /> 帳號至少要6個字以上";
                     spAccount.className = 'text-danger';
                 } else {
-                    spAccount.innerHTML = "<img src=\"/assets/img/correctt.png\" /> 格式正確";
+                    spAccount.innerHTML = "<img src=\"/assets/img/correct.png\" /> 格式正確";
                     spAccount.className = 'text-success';
                 }
             };
@@ -105,7 +117,7 @@
                     }
 
                     if (flag1 && flag2 && flag3) {
-                        sp.innerHTML = "<img src=\"/assets/img/correctt.png\" /> 格式正確";
+                        sp.innerHTML = "<img src=\"/assets/img/correct.png\" /> 格式正確";
                         spPwd.className = 'text-success';
                     } else {
                         sp.innerHTML = "<img src=\"/assets/img/error.png\" /> 密碼必須包含英文、數字和特殊字符";
@@ -157,24 +169,44 @@
                     //console.log(count)
                     if (count === 3) {
                         window.alert('密碼錯誤達三次，即將跳轉頁面')
-                        window.location.href = '@Url.Content("~/home/index")'
+                        //  TODO account banner
+                        window.location.href = '@Url.Content("~/home/")'
                     }
                     sp.innerHTML = `<img src=\"/assets/img/error.png\" /> 密碼錯誤，已錯誤${count}次`
                     sp.classList.add('text-danger');
                     return;
                 }
 
-                //setsession
-                setSession(data)
-                //window.location.href = '@Url.Content("~/home/session")'
-                //assign? replace?
+                getInfo(data)
             };
 
-            function setSession({ id, roleId }) {
-                sessionStorage.setItem('ID', id)
-                sessionStorage.setItem('role_ID', roleId)
-                //console.log('sessionStorage', sessionStorage)
+            function getInfo({ id, role_id }) {
+                const form = document.getElementById('fetch_data')
+                const info_1 = document.getElementById('id')
+                const info_2 = document.getElementById('role_id')
+
+                info_1.value = `${id}`
+                info_2.value = `${role_id}`
+                console.log(info_1.value)
+                form.submit()
             };
+
+            document.getElementById('logindemo1').addEventListener('click', () => {
+                //  member demo
+                document.getElementById("idAccount").value = '0912123123';
+                document.getElementById("idPwd").value = 'as1234588!';
+            });
+
+            document.getElementById('logindemo2').addEventListener('click', () => {
+                //  coach demo
+                document.getElementById("idAccount").value = 'carol@gmail.com';
+                document.getElementById("idPwd").value = 'c48946488!';
+            });
+
+            document.getElementById('logindemo3').addEventListener('click', () => {
+                document.getElementById("idAccount").value = 'admin@gmail.com';
+                document.getElementById("idPwd").value = 'admin12345!';
+            });
 
         })();
     </script>

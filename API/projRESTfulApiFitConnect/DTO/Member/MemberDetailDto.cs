@@ -13,6 +13,7 @@ namespace projRESTfulApiFitConnect.DTO.Member
         public string Address { get; set; } = null!;
         public string? RoleDescription { get; set; } = null!;
         public string GenderDescription { get; set; } = null!;
+        public int? GenderID { get; set; } = null!;
 
     }
 }
